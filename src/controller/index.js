@@ -1,6 +1,7 @@
 module.exports = {
   InfoController: require("./info-controller"),
   AirplaneController: require("./airplaneController"),
+  CityController: require("./cityController"),
 };
 
 // new technique:- exporting all the controllers files from index.js

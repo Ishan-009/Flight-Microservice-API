@@ -17,6 +17,11 @@ async function createAirplane(data) {
       console.log(explanation);
       throw new AppError(explanation, StatusCodes.BAD_REQUEST);
     }
+
+    throw new AppError(
+      "Cannot Create instance of an airplanes",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 }
 
