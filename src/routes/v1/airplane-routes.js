@@ -10,6 +10,13 @@ router.post(
 );
 
 router.get("/", AirplaneController.getAirplanes);
+router.get("/:id", AirplaneController.getAirplane);
+router.delete("/:id", AirplaneController.deleteAirplane);
+router.put(
+  "/:id",
+  AirplaneMiddleware.validateCreateRequest,
+  AirplaneController.updateAirplane
+);
 
 // Export the router
 module.exports = router;
