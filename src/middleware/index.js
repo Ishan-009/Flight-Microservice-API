@@ -1,6 +1,7 @@
 module.exports = {
   AirplaneMiddleware: require("./airplane-middleware"),
   CityMiddleware: require("./city-middleware"),
+  AirportMiddleware: require("./airport-middleware"),
 };
 
 // new technique:- exporting all the middlewares files from index.js

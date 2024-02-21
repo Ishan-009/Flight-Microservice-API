@@ -1,6 +1,8 @@
 module.exports = {
   AirplaneService: require("./airplane-service"),
   CityService: require("./city-service"),
+  AirportService: require("./airport-service"),
+  FlightService: require("./flight-service"),
 };
 
 // new technique:- exporting all the services files from index.js
