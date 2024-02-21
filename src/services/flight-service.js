@@ -1,12 +1,12 @@
 const { StatusCodes } = require("http-status-codes");
 const { FlightRepository } = require("../repositories/index");
-
+const { Op } = require("sequelize");
 const flightRepository = new FlightRepository();
 const AppError = require("../utils/errors/app-error");
 const { compareTime } = require("../utils/helpers/datetime-helper");
 async function createFlight(data) {
   try {
-    const isValidTime = compareTime(data.arrivalTime, data.deperatureTime);
+    const isValidTime = compareTime(data.arrivalTime, data.departureTime);
     const flight = await flightRepository.create(data);
     if (!isValidTime) {
       const ErrorResponse = new AppError(
@@ -35,6 +35,62 @@ async function createFlight(data) {
   }
 }
 
+async function getAllFlights(query) {
+  let customFilter = {};
+  let sortFilter = {};
+  if (query.trips) {
+    let [departureAirportId, arrivalAirportId] = query.trips.split("-");
+    customFilter.departureAirportId = departureAirportId;
+    customFilter.arrivalAirportId = arrivalAirportId;
+
+    // Todo add a check if they are same
+  }
+
+  if (query.price) {
+    let [minPrice, maxPrice] = query.price.split("-");
+    customFilter.price = {
+      [Op.between]: [minPrice ?? 0, maxPrice == undefined ? 20000 : maxPrice],
+    };
+  }
+  // available number of seats based on searching filter for number of travellers
+
+  if (query.travellers) {
+    customFilter.totalSeats = {
+      [Op.gte]: query.travellers,
+    };
+  }
+  const endingTripTime = " 23:59:00";
+  if (query.tripDate) {
+    customFilter.departureTime = {
+      [Op.between]: [query.tripDate, query.tripDate + endingTripTime],
+    };
+  }
+
+  if (query.sort) {
+    const params = query.sort.split(",");
+    console.log(params);
+    const sortFilters = params.map((param) => {
+      return param.split("_");
+    });
+    sortFilter = sortFilters;
+  }
+
+  try {
+    const flights = await flightRepository.getAllFlights(
+      customFilter,
+      sortFilter
+    );
+    return flights;
+  } catch (error) {
+    console.log(error);
+    throw new AppError(
+      "Cannot fetch data of all airports",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
 module.exports = {
   createFlight,
+  getAllFlights,
 };

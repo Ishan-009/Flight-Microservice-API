@@ -9,7 +9,8 @@ router.post(
   FlightController.createFlight
 );
 
-// router.get("/", AirportController.getAirports);
+// api/v1/flights?filter
+router.get("/", FlightController.getAllFlights);
 // router.get("/:id", AirportController.getAirport);
 // router.delete("/:id", AirportController.deleteAirport);
 // router.put(
