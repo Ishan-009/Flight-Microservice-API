@@ -1,6 +1,6 @@
 // airplaneMiddleware.js
 const { StatusCodes } = require("http-status-codes");
-const { ErrorResponse } = require("../utils/errors/common/index");
+const { ErrorResponse } = require("../utils/common/index");
 const AppError = require("../utils/errors/app-error");
 
 function validateCreateRequest(req, res, next) {
