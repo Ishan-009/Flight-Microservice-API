@@ -1,7 +1,8 @@
 const CrudRepository = require("./crud-repository");
 const { Flight, Airplane, Airport, City } = require("../models");
 const { Sequelize } = require("sequelize");
-
+const { FlightMiddleware } = require("../middleware");
+const db = require("../models");
 class FlightRepository extends CrudRepository {
   constructor() {
     super(Flight);
@@ -63,6 +64,23 @@ class FlightRepository extends CrudRepository {
     // here we are using alias as refernce to implement things or access things like "Flight.arrivalAirportId" here "Flight " is an alias same goes for "arrivalAirport" and "departureAirport", it requires so it could figure out on which association it want to impolement operation as "Airport.code" could be use multiple times as it could figure on which column it want to apply implementation
 
     return response;
+  }
+
+  async updateRemainingSeats(flightId, seats, dec = true) {
+    await db.sequelize.query(
+      `SELECT * FROM Flights WHERE Flights.id=${flightId} FOR UPDATE`
+    );
+    // THIS QUERY IS GONAA PUT ROW LOCK FOR ANY UPDATE WE ARE GONNA DO, PESSIMISTIC CONCURRENCY CONTROL
+
+    const flight = await Flight.findByPk(flightId);
+
+    if (parseInt(dec)) {
+      console.log(flight);
+      await flight.decrement("totalSeats", { by: seats });
+    } else {
+      await flight.increment("totalSeats", { by: seats });
+    }
+    return flight;
   }
 }
 

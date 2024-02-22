@@ -1,6 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const { FlightService } = require("../services");
 const { SuccessResponse, ErrorResponse } = require("../utils/common/index");
+const { FlightRepository } = require("../repositories");
 async function createFlight(req, res) {
   try {
     const response = await FlightService.createFlight({
@@ -58,8 +59,25 @@ async function getFlight(req, res) {
   }
 }
 
+async function updateSeats(req, res) {
+  try {
+    const response = await FlightService.updateSeats({
+      flightId: req.params.id,
+      seats: req.body.seats,
+      dec: req.body.dec,
+    });
+    SuccessResponse.message = "Successfully Fetched an Flight";
+    SuccessResponse.data = response;
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
 module.exports = {
   createFlight,
   getAllFlights,
   getFlight,
+  updateSeats,
 };
