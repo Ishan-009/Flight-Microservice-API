@@ -68,19 +68,36 @@ class FlightRepository extends CrudRepository {
   }
 
   async updateRemainingSeats(flightId, seats, dec = true) {
-    await db.sequelize.query(addRowLockOnFlights(flightId));
-    // THIS QUERY IS GONAA PUT ROW LOCK FOR ANY UPDATE WE ARE GONNA DO, PESSIMISTIC CONCURRENCY CONTROL
+    const transaction = await db.sequelize.transaction();
 
-    const flight = await Flight.findByPk(flightId);
+    try {
+      await db.sequelize.query(addRowLockOnFlights(flightId));
+      // THIS QUERY IS GONAA PUT ROW LOCK FOR ANY UPDATE WE ARE GONNA DO, PESSIMISTIC CONCURRENCY CONTROL
 
-    if (+dec) {
-      //shorthand for number(dec)
-      console.log(flight);
-      await flight.decrement("totalSeats", { by: seats });
-    } else {
-      await flight.increment("totalSeats", { by: seats });
+      const flight = await Flight.findByPk(flightId);
+
+      if (+dec) {
+        //shorthand for number(dec)
+        console.log(flight);
+        await flight.decrement(
+          "totalSeats",
+          { by: seats },
+          { transaction: transaction }
+        );
+      } else {
+        await flight.increment(
+          "totalSeats",
+          { by: seats },
+          { transaction: transaction }
+        );
+        //  so whenever this queries will be executed it will execute in one transaction so by passing object as an new argument
+      }
+      await transaction.commit;
+      return flight;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-    return flight;
   }
 }
 
