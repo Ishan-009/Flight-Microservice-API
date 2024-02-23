@@ -3,6 +3,7 @@ const { Flight, Airplane, Airport, City } = require("../models");
 const { Sequelize } = require("sequelize");
 const { FlightMiddleware } = require("../middleware");
 const db = require("../models");
+const { addRowLockOnFlights } = require("./queries.js");
 class FlightRepository extends CrudRepository {
   constructor() {
     super(Flight);
@@ -67,9 +68,7 @@ class FlightRepository extends CrudRepository {
   }
 
   async updateRemainingSeats(flightId, seats, dec = true) {
-    await db.sequelize.query(
-      `SELECT * FROM Flights WHERE Flights.id=${flightId} FOR UPDATE`
-    );
+    await db.sequelize.query(addRowLockOnFlights(flightId));
     // THIS QUERY IS GONAA PUT ROW LOCK FOR ANY UPDATE WE ARE GONNA DO, PESSIMISTIC CONCURRENCY CONTROL
 
     const flight = await Flight.findByPk(flightId);
