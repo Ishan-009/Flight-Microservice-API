@@ -73,7 +73,8 @@ class FlightRepository extends CrudRepository {
 
     const flight = await Flight.findByPk(flightId);
 
-    if (parseInt(dec)) {
+    if (+dec) {
+      //shorthand for number(dec)
       console.log(flight);
       await flight.decrement("totalSeats", { by: seats });
     } else {
